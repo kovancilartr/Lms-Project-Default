@@ -1,13 +1,16 @@
+import { isTeacher } from "@/lib/teacher";
 import { auth } from "@clerk/nextjs/server";
+import { ValidMiddlewareObject } from "uploadthing/internal/types";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 
 const f = createUploadthing();
 
-const handleAuth = async () => {
-  const userId = await auth();
-  console.log("[CORE]", userId);
-  if (!userId) throw new Error("Not authenticated");
-  return userId;
+const handleAuth = async (): Promise<ValidMiddlewareObject> => {
+  const { userId } = await auth();
+  const isAuthorized = isTeacher(userId);
+
+  if (!userId || !isAuthorized) throw new Error("Not authenticated");
+  return { userId };
 };
 
 export const ourFileRouter = {

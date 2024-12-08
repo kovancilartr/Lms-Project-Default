@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { isTeacher } from "@/lib/teacher";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -8,7 +9,7 @@ export async function POST(req: Request) {
     const userId = (await auth()).userId;
     const { title } = await req.json();
 
-    if (!userId) {
+    if (!userId || !isTeacher(userId)) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
